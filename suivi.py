@@ -8,6 +8,7 @@ import os
 import sys
 import time
 from datetime import datetime
+from bisect import bisect
 import numpy as np
 import matplotlib.pyplot as plt
 
@@ -51,19 +52,23 @@ class Goal:
         beginning = self.firstday
         nDays = countDays(beginning, currentDate)
         toWrite = str(nDays) + " " + str(value) + "\n"
-        self.dates.append(nDays)
-        self.values.append(value)
+        i = bisect(self.dates, nDays)
+        self.dates.insert(i, nDays)
+        self.values.insert(i, value)
         with open(self.address, "a") as f:
             f.write(toWrite)
             
     def add_otherDay(self, date, value):
         beginning = self.firstday
         nDays = countDays(beginning, date)
-        toWrite = str(nDays) + " " + str(value) + "\n"
-        self.dates.append(nDays)
-        self.values.append(value)
-        with open(self.address, "a") as f:
-            f.write(toWrite)
+        i = bisect(self.dates, nDays)
+        self.dates.insert(i, nDays)
+        self.values.insert(i, value)
+        with open(self.address, "w") as f:
+            for k in range(len(self.dates)):
+                toWrite = str(self.dates[k]) + " " + str(self.values[k]) + "\n"
+                f.write(toWrite)
+                
             
     def statistics(self):
         print "average, working days:", sum(self.values)/(len(self.values) - 0.)
@@ -72,7 +77,15 @@ class Goal:
 #        print self.values
             
     def plot(self):
-        plt.bar(self.dates, self.values, color="red", linestyle="-")
+#        plt.bar(self.dates, self.values, color="red", linestyle="-")
+        axes = plt.gca()
+        axes.set_xlim([0, max(self.dates) + 1])
+        axes.set_ylim([0,max(self.values) + 1])
+        plt.plot(self.dates, self.values, color="red", linestyle="--", marker = "o")
+        plt.show()
+        
+    def set_firsday(self, date):
+        self.firstday = date
         
 #%% 
 def welcome():
@@ -84,7 +97,8 @@ def welcome():
     print s
     
 def actions():
-    "TODO"
+    s = "What would you like to do?"
+    print s
 
 def followork():
     welcome()
@@ -97,8 +111,28 @@ def followork():
         print "Which project would you like to choose?"
         s = sys.stdin.readline().strip()
     goal = Goal(s)
-    goal.statistics()
-    goal.plot()
+    actions()
+    s1 = ""
+    while s1 != "quit":
+        s1 = sys.stdin.readline().strip()
+        if (s1 == "add"):
+            v = int(input())
+            goal.add(v)
+            print "Value added"
+            print
+        elif (s1 == "addo"):
+            d, v = sys.stdin.readline().split()
+            goal.add_otherDay(d, int(v))
+            print "Value added"
+            print
+        elif (s1 == "show"):
+            goal.statistics()
+            goal.plot()
+        elif (s1 == "firstday"):
+            d = sys.stdin.readline().strip()
+            goal.set_firsday(d)
+            print "Date set."
+            print
     
     
     
@@ -107,9 +141,9 @@ def followork():
     
 followork()
             
-#goal1 = Goal("test2")
+#goal1 = Goal("test")
 #goal1.add(4)
-#goal1.add_otherDay("2016/07/08", 5)
+#goal1.add_otherDay("2016/07/08", 4)
 #goal1.add_otherDay("2016/07/06", 8)
 #goal1.statistics()
 #goal1.plot()
