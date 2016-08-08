@@ -6,20 +6,24 @@ Created on Sun Aug  7 18:53:49 2016
 """
 
 import unittest
-from suivi import *
+from Goal import *
 import os
 import os.path 
+import time
 
 class Goal_T(unittest.TestCase):
 
     def test_init_delete(self):
         g1 = Goal("a")
-        g1.delete
+        g1.delete()
         
         g2 = Goal("a")
-        self.assertTrue(g1.address) 
-        self.assertEqual('foo'.upper(), 'FOO')
-
+        self.assertTrue(os.path.isfile(g2.address))
+        self.assertEqual(time.strftime("%Y/%m/%d"), g2.firstDay)
+        g2.delete()
+        self.assertFalse(os.path.isfile(g2.address))
+        
+        
     def test_isupper(self):
         self.assertTrue('FOO'.isupper())
         self.assertFalse('Foo'.isupper())
