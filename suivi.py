@@ -11,6 +11,7 @@ from datetime import datetime
 from bisect import bisect
 import numpy as np
 import matplotlib.pyplot as plt
+import pickle
 
 def countDays(date1, date2):
     date_format = "%Y/%m/%d"
@@ -19,8 +20,27 @@ def countDays(date1, date2):
     delta = b - a
     return delta.days
     
-
+    
 class Goal:
+    """
+    FIELDS:
+    - name: name of the work
+    - data: list
+    - values: list of values of work
+    - dates: ordered list of days. Day 0 is starting date
+    - address: string representing where the project is
+    - firstDay: date of the first day (time module)
+    
+    METHODS:
+    - __init__(self, name)
+    - delete(self)
+    - add(self, value)
+    - add_otherDay(self, date, value)
+    - set_firsday(self, date)
+    - statistics(self)
+    - plot(self)
+    """
+    
     def __init__(self, name):
         self.name = name
         
@@ -38,8 +58,7 @@ class Goal:
                     self.data.append([date, value])
         else:
             open(self.address, 'a').close()
-        
-        self.firstday = time.strftime("%Y/%m/%d")
+            self.firstDay = time.strftime("%Y/%m/%d")
         
         self.goal = -1
             
@@ -49,7 +68,7 @@ class Goal:
         
     def add(self, value):
         currentDate = time.strftime("%Y/%m/%d")
-        beginning = self.firstday
+        beginning = self.firstDay
         nDays = countDays(beginning, currentDate)
         toWrite = str(nDays) + " " + str(value) + "\n"
         i = bisect(self.dates, nDays)
@@ -59,7 +78,7 @@ class Goal:
             f.write(toWrite)
             
     def add_otherDay(self, date, value):
-        beginning = self.firstday
+        beginning = self.firstDay
         nDays = countDays(beginning, date)
         i = bisect(self.dates, nDays)
         self.dates.insert(i, nDays)
@@ -85,7 +104,7 @@ class Goal:
         plt.show()
         
     def set_firsday(self, date):
-        self.firstday = date
+        self.firstDay = date
         
 #%% 
 def welcome():
@@ -128,7 +147,7 @@ def followork():
         elif (s1 == "show"):
             goal.statistics()
             goal.plot()
-        elif (s1 == "firstday"):
+        elif (s1 == "firstDay"):
             d = sys.stdin.readline().strip()
             goal.set_firsday(d)
             print "Date set."
